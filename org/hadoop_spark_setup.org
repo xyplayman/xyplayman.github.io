@@ -1,0 +1,167 @@
+* Hadoop和Spark的安装配置
+
+** 概述
+
+本文描述了个人安装配置Hadoop和Spark的过程。使用的软硬件环境如下：
+- MacBook Pro
+- VirtualBox 6.0
+- Ubuntu Desktop 19.04
+- Hadoop 3.2.0
+- Spark 2.4.4
+
+** 安装虚拟机和Ubuntu
+
+本次安装过程一共使用了三台虚拟机。其中一台作为主机，名为ubuntu1。另外两台作为从机，分别名为ubuntu2、ubuntu3。虚拟机在VirtualBox中创建，三台虚拟机的配置完全相同。虚拟的内存大小为2G，硬盘大小为10G。虚拟机的网络选择桥接模式。
+
+虚拟机创建完成后，光驱加载ubuntu-19.04-desktop-amd64.iso，启动虚拟机，开始安装Ubuntu操作系统。为加快安装速度，可以选择“最小安装”。
+
+Ubuntu安装完成后，在VirtualBox菜单上选择相关菜单项，安装虚拟机工具。
+
+** Ubuntu安装ssh
+
+*** 更新apt
+
+#+BEGIN_SRC sh
+sudo apt update
+#+END_SRC
+
+*** 安装ssh
+
+#+BEGIN_SRC sh
+sudo apt install ssh
+#+END_SRC
+
+** 设置Ubuntu只启动命令行界面
+
+#+BEGIN_SRC sh
+sudo systemctl set-default multi-user.target
+#+END_SRC
+
+** 配置MacOS免密ssh登陆三台Ubuntu主机
+
+*** 使用ssh-keygen生成公钥和私钥
+
+*** 复制公钥到三台Ubuntu主机
+
+#+BEGIN_SRC sh
+ssh-copy-id -i .ssh/id_rsa.pub  ubuntu@192.168.1.11
+ssh-copy-id -i .ssh/id_rsa.pub  ubuntu@192.168.1.12
+ssh-copy-id -i .ssh/id_rsa.pub  ubuntu@192.168.1.13
+#+END_SRC
+
+复制完成后测试ssh免密登陆。
+
+** 安装Java
+
+在Oracle官网下载Linux版本的Java开发包，解压后移动到/opt目录。
+
+** 创建用户和组
+
+*** 新建hadoop组
+
+#+BEGIN_SRC sh
+sudo groupadd hadoop
+#+END_SRC
+
+*** 新建hadoop用户
+
+#+BEGIN_SRC sh
+sudo useradd -g hadoop -s /bin/bash -m hadoop
+#+END_SRC
+
+*** 为新建的hadoop用户创建密码
+
+#+BEGIN_SRC sh
+sudo passwd hadoop
+#+END_SRC
+
+*** 创建hadoop用户的主目录
+
+如果创建用户时已建立主目录，则忽略这一步。
+
+#+BEGIN_SRC sh
+sudo mkdir /home/hadoop
+sudo chown hadoop:hadoop /home/hadoop/
+#+END_SRC
+
+** 下载安装hadoop
+
+从官网下载二进制包，这里使用的是3.2.0版本。
+
+*** 修改hadoop文件的所有者用户和组
+
+#+BEGIN_SRC sh
+sudo chown -R hadoop:hadoop hadoop-3.2.0/
+#+END_SRC
+
+*** 将hadoop目录移动到/opt
+
+#+BEGIN_SRC sh
+sudo mv hadoop-3.2.0/ /opt/
+#+END_SRC
+
+** 配置master免密ssh登陆worker
+
+- master(ubuntu1): 192.168.1.11
+- worker(ubuntu2): 192.168.1.12
+- worker(ubuntu3): 192.168.1.13
+
+*** hadoop用户在master机器生成公钥私钥
+
+#+BEGIN_SRC sh
+su hadoop
+ssh-keygen
+#+END_SRC
+
+*** 分发公钥到worker机器
+
+#+BEGIN_SRC sh
+ssh-copy-id -i .ssh/id_rsa.pub  hadoop@192.168.1.12
+ssh-copy-id -i .ssh/id_rsa.pub  hadoop@192.168.1.13
+#+END_SRC
+
+** TODO hadoop配置
+
+hadoop配置文件位于etc/hadoop目录下。
+
+*** hadoop-env.sh
+
+该文件所配置的环境变量用于控制hadoop的相关运行脚本。修改如下。
+
+#+BEGIN_SRC sh
+export JAVA_HOME=/opt/jdk-12.0.2
+#+END_SRC
+
+*** core-site.xml
+
+#+BEGIN_SRC xml
+  <configuration>
+    <property>
+      <name>fs.defaultFS</name>
+      <value>hdfs://192.168.1.11/</value>
+    </property>
+  </configuration>
+#+END_SRC
+
+*** yarn-site.xml
+
+#+BEGIN_SRC xml
+  <configuration>
+    <property>
+      <name>yarn.resourcemanager.hostname</name>
+      <value>192.168.1.11</value>
+    </property>
+    <property>
+      <name>yarn.nodemanager.aux-services</name>
+      <value>mapreduce.shuffle</value>
+    </property>
+    <property>
+      <name>yarn.nodemanager.resource.memory-mb</name>
+      <value>2048</value>
+    </property>
+    <property>
+      <name>yarn.nodemanager.resource.cpu-vcores</name>
+      <value>1</value>
+    </property>
+  </configuration>
+#+END_SRC

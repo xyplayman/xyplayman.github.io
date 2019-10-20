@@ -1,0 +1,38 @@
+#+STARTUP: content
+
+* 第二部分 MapReduce
+
+** 6. Developing a MapReduce Application
+
+*** The Configuration API
+
+Configuration类用于表达Hadoop组件的配置。Configuration从XML格式的resources中读取properties。
+
+后面添加的resources中的properties，将覆盖前面添加的。
+
+*** Running on a Cluster
+
+**** Packaging a Job
+
+***** 客户端
+
+当客户端运行下面的命令
+
+#+BEGIN_SRC shell
+hadoop jar <jar>
+#+END_SRC
+
+此时客户端classpath由以下部分构成：
+
+- 该job的JAR文件
+- 该job的JAR文件中，lib目录下的所有JAR文件；以及classes目录
+- HADOOP_CLASSPATH环境变量
+
+***** 集群中的map和reduce任务
+
+classpath由以下部分构成：
+
+- 该job的JAR文件
+- 该job的JAR文件中，lib目录下的所有JAR文件；以及classes目录
+- 使用命令行选项-libjars，添加到distributed cache中的文件
+

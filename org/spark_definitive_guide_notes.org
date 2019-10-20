@@ -1,0 +1,37 @@
+* Part One - Overview
+
+** Chapter 1. What is Apache Spark
+
+*** 工具集
+
+Structured Streaming | Advanced Analytics | Libraries & Ecosystem
+
+Structured APIs
+Datasets | DataFrames | SQL
+
+Low-level APIs
+RDDs | Distributed Variables
+
+*** 设计理念
+
+- 统一
+- 计算引擎
+- 提供一系列的库
+
+*** 启动Spark的交互式控制台
+
+**** Python
+
+bin/pyspark
+
+**** Scala
+
+bin/spark-shell
+
+**** SQL
+
+bin/spark-sql
+
+** Chapter 2. A Gentle Introduction to Spark
+
+

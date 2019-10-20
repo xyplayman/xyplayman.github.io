@@ -1,0 +1,32 @@
+#+STARTUP: content
+
+* IOC容器
+
+** 常用Java注解
+
+- @Component
+
+@Component注解标记class为Spring Bean。@Component是一般性的注解，更特殊的注解有@Service和@Repository。
+
+- @Service
+
+用于标记业务服务组件。
+
+- @Repository
+
+用于标记数据访问组件。
+
+- @Autowired
+
+用于指定要注入的bean实例。
+
+#+BEGIN_SRC java
+  @Service
+  public class BusinessServiceImpl { 
+
+      @Autowired 
+      private DataService dataService;
+
+  }
+#+END_SRC
+
